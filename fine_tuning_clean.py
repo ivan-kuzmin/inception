@@ -14,16 +14,23 @@ os.chdir(path)
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-import seaborn
+#import seaborn
 
 # Dimensions of our images.
 img_width, img_height = 150, 150
 
+#config = tf.ConfigProto()
+#config.gpu_options.allow_growth = True
+#config.gpu_options.per_process_gpu_memory_fraction = 0.4
+#sess = tf.Session(config=config)
+gpu_id = 2
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-#config.gpu_options.per_process_gpu_memory_fraction = 0.4
+config.intra_op_parallelism_threads = 1
+config.inter_op_parallelism_threads= 1
 sess = tf.Session(config=config)
-
 
 # Parameters
 train_data_dir = 'clean_karies/train'
@@ -41,7 +48,7 @@ else:
     #input_shape = (img_width, img_height, 3)
 
 # Create the base pre-trained model
-base_model = InceptionV3(input_tensor=input_tensor, weights='imagenet', include_top=False)
+base_model = InceptionV3(input_tensor=input_tensor, weights='inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5', include_top=False)
 
 # Add a global spatial average pooling layer
 x = base_model.output
